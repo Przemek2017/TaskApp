@@ -1,4 +1,4 @@
-package com.ciaston.przemek.todoapp.db;
+package com.ciaston.przemek.taskapp.db;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.ciaston.przemek.todoapp.model.TaskModel;
+import com.ciaston.przemek.taskapp.model.TaskModel;
 
 import java.util.ArrayList;
 import java.util.List;

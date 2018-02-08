@@ -4,5 +4,6 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="colorDeleteItem">#ffcccc</color>
-    <color name="colorEditItem">#fffd9c</color>
+    <color name="colorEditItem">#a2f45f</color>
+    <color name="colorItem">#ececec</color>
 </resources>

@@ -1,4 +1,4 @@
-package com.ciaston.przemek.todoapp.db;
+package com.ciaston.przemek.taskapp.db;
 
 /**
  * Created by Przemek on 2018-02-01.

@@ -1,4 +1,4 @@
-package com.ciaston.przemek.todoapp;
+package com.ciaston.przemek.taskapp;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

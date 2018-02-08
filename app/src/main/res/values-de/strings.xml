@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TodoApp</string>
+    <string name="cancel">Entfernen</string>
+    <string name="add">Hinzufügen</string>
+    <string name="done">Fertig</string>
+    <string name="edit_task">Aufgabenbearbeitung:"</string>
+    <string name="add_task">Füge eine Aufgabe hinzu:"</string>
+    <string name="its_high_time_to">Es ist Zeit...</string>
+    <string name="task_deleted">Löschen Sie die Aufgabe</string>
+    <string name="action_settings">"Füge eine Aufgabe hinzu"</string>
+</resources>

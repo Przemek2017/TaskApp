@@ -1,19 +1,14 @@
-package com.ciaston.przemek.todoapp.adapter;
+package com.ciaston.przemek.taskapp.adapter;
 
-import android.content.ClipData;
 import android.content.Context;
-import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.ciaston.przemek.todoapp.utils.ItemTouchHelperAdapter;
-import com.ciaston.przemek.todoapp.R;
-import com.ciaston.przemek.todoapp.model.TaskModel;
-import com.ciaston.przemek.todoapp.utils.ItemTouchHelperViewHolder;
+import com.ciaston.przemek.taskapp.R;
+import com.ciaston.przemek.taskapp.model.TaskModel;
 
 import java.util.List;
 
@@ -21,7 +16,7 @@ import java.util.List;
  * Created by Przemek on 2018-01-31.
  */
 
-public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyHolder> implements ItemTouchHelperAdapter, View.OnTouchListener {
+public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyHolder> {
 
     List<TaskModel> taskList;
     Context context;
@@ -33,7 +28,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyHolder> impl
 
     @Override
     public MyHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_view, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_card_view, parent, false);
         return new MyHolder(view);
     }
 
@@ -62,29 +57,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyHolder> impl
         return taskList.size();
     }
 
-    @Override
-    public void onItemMove(int fromPosition, int toPosition) {
-        TaskModel todoPosition = taskList.remove(fromPosition);
-        taskList.add(toPosition > fromPosition ? toPosition - 1 : toPosition, todoPosition);
-        notifyItemMoved(fromPosition, toPosition);
-    }
-
-    @Override
-    public void onItemDismiss(int position) {
-
-    }
-
-    @Override
-    public boolean onTouch(View view, MotionEvent motionEvent) {
-        ClipData clipData = ClipData.newPlainText("", "");
-        View.DragShadowBuilder dragShadowBuilder = new View.DragShadowBuilder(view);
-        view.startDrag(clipData, dragShadowBuilder, view, 0);
-        return true;
-    }
-
-
-
-    public class MyHolder extends RecyclerView.ViewHolder implements ItemTouchHelperViewHolder {
+    public class MyHolder extends RecyclerView.ViewHolder{
 
         public TextView task;
         public TextView time;
@@ -98,14 +71,5 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyHolder> impl
             date = itemView.findViewById(R.id.inputDate);
         }
 
-        @Override
-        public void onItemSelected() {
-            itemView.setBackgroundColor(Color.BLUE);
-        }
-
-        @Override
-        public void onItemClear() {
-            itemView.setBackgroundColor(Color.GRAY);
-        }
     }
 }

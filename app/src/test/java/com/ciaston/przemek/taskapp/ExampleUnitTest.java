@@ -1,4 +1,4 @@
-package com.ciaston.przemek.todoapp;
+package com.ciaston.przemek.taskapp;
 
 import org.junit.Test;
 

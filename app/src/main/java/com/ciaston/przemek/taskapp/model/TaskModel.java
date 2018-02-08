@@ -1,4 +1,4 @@
-package com.ciaston.przemek.todoapp.model;
+package com.ciaston.przemek.taskapp.model;
 
 /**
  * Created by Przemek on 2018-01-31.
