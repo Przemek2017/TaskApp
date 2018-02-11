@@ -7,13 +7,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.RectF;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -22,6 +19,9 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
@@ -31,10 +31,11 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import com.ciaston.przemek.taskapp.adapter.TaskAdapter;
-import com.ciaston.przemek.taskapp.broadcast.TaskNotification;
+import com.ciaston.przemek.taskapp.controller.SwipeController;
+import com.ciaston.przemek.taskapp.controller.SwipeControllerActions;
+import com.ciaston.przemek.taskapp.notification.TaskNotification;
 import com.ciaston.przemek.taskapp.db.DataBaseManager;
 import com.ciaston.przemek.taskapp.model.TaskModel;
 
@@ -58,19 +59,21 @@ public class MainActivity extends AppCompatActivity {
     private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-    private String setTime = "czas";
-    private String setDate = "data";
-
-    private Paint paint = new Paint();
+    private String setTime = "";
+    private String setDate = "";
 
     private IntentFilter intentFilter;
 
+    private SwipeController swipeController;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        dataBaseManager = new DataBaseManager(this);
 
+        final String appName = getResources().getString(R.string.app_name);
+        showAppNameCollapsing(appName);
+
+        dataBaseManager = new DataBaseManager(this);
         intentForNotification();
 
         findViewById();
@@ -80,6 +83,53 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        swipeController = new SwipeController(new SwipeControllerActions() {
+            @Override
+            public void onRightClicked(int position) {
+                TaskModel taskModel = taskAdapter.getData(position);
+                dataBaseManager.deleteTask(taskModel.getId());
+                initDataFromDB();
+            }
+            @Override
+            public void onLeftClicked(int position){
+                TaskModel taskModel = taskAdapter.getData(position);
+                editTask(taskModel);
+            }
+        });
+
+        ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
+        itemTouchhelper.attachToRecyclerView(recyclerView);
+
+        recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+                swipeController.onDraw(c);
+            }
+        });
+
+    }
+
+    private void showAppNameCollapsing(final String appName) {
+        final CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.toolbar_layout);
+        AppBarLayout appBarLayout = findViewById(R.id.app_bar);
+        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            boolean showAppName = true;
+            int scrollRange = -1;
+
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                if (scrollRange == -1) {
+                    scrollRange = appBarLayout.getTotalScrollRange();
+                }
+                if (scrollRange + verticalOffset == 0) {
+                    collapsingToolbarLayout.setTitle(appName);
+                    showAppName = true;
+                } else if (showAppName) {
+                    collapsingToolbarLayout.setTitle(" ");
+                    showAppName = false;
+                }
+            }
+        });
     }
 
     private void intentForNotification() {
@@ -92,15 +142,17 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             Calendar calendar = Calendar.getInstance();
 
+            String title = getResources().getString(R.string.its_high_time_to);
+
             String setTime1 = timeFormat.format(calendar.getTime());
             String setDate1 = dateFormat.format(calendar.getTime());
 
-            List<TaskModel> taskList = dataBaseManager.getData();
+            List<TaskModel> taskList = dataBaseManager.getTask();
             for (TaskModel taskModel : taskList) {
                 String notificationTime = taskModel.getTime().toString();
                 String notificationDate = taskModel.getDate().toString();
                 if (notificationTime.equals(setTime1) && notificationDate.equals(setDate1)) {
-                    TaskNotification.createNotification(getApplicationContext(), R.string.its_high_time_to, taskModel.getTask());
+                    TaskNotification.createNotification(getApplicationContext(), title, taskModel.getTask());
                 }
             }
         }
@@ -166,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
 
         alertDialog.setView(addTaskView);
         alertDialog.setCancelable(false);
-        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+        alertDialog.setNegativeButton(R.string.exit, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
@@ -177,18 +229,24 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                String todo = addTodo.getText().toString();
-                String time = addTime.getText().toString();
-                String date = addDate.getText().toString();
+                final String task = addTodo.getText().toString();
+                final String time = addTime.getText().toString();
+                final String date = addDate.getText().toString();
 
-                dataBaseManager.insertData(todo, time, date);
+                TaskModel taskModel = new TaskModel(task, time, date);
+                dataBaseManager.insertTask(taskModel);
                 initDataFromDB();
             }
         });
-        alertDialog.show();
+
+        final AlertDialog alert = alertDialog.create();
+        alert.show();
+        alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+
+        isEnabledPositiveButton(addTodo, alert);
     }
 
-    private void editTask(final String task, final String time, final String date) {
+    private void editTask(final TaskModel taskModel) {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
         alertDialog.setTitle(R.string.edit_task);
         alertDialog.setIcon(R.drawable.edit64);
@@ -204,9 +262,9 @@ public class MainActivity extends AppCompatActivity {
         addDate = editView.findViewById(R.id.textViewDate);
         addTime = editView.findViewById(R.id.textViewTime);
 
-        taskEdit.setText(task);
-        addTime.setText(time);
-        addDate.setText(date);
+        taskEdit.setText(taskModel.getTask());
+        addTime.setText(taskModel.getTime());
+        addDate.setText(taskModel.getDate());
 
         addDateImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -223,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
         });
         alertDialog.setCancelable(false);
         alertDialog.setView(editView);
-        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+        alertDialog.setNegativeButton(R.string.exit, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 initDataFromDB();
@@ -234,16 +292,38 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
 
-                String getTask = taskEdit.getText().toString();
-                String getTime = addTime.getText().toString();
-                String getDate = addDate.getText().toString();
+                taskModel.setTask(taskEdit.getText().toString());
+                taskModel.setTime(addTime.getText().toString());
+                taskModel.setDate(addDate.getText().toString());
 
-                dataBaseManager.updateData(getTask, getTime, getDate, task, time, date);
+                dataBaseManager.updateTask(taskModel);
                 initDataFromDB();
             }
         });
-        alertDialog.create();
-        alertDialog.show();
+        AlertDialog alert = alertDialog.create();
+        alert.show();
+
+        isEnabledPositiveButton(taskEdit, alert);
+    }
+
+    private void isEnabledPositiveButton(EditText addTodo, final AlertDialog alert) {
+        addTodo.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (TextUtils.isEmpty(charSequence)){
+                    alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (!TextUtils.isEmpty(editable)){
+                    alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                }
+            }
+        });
     }
 
     private void initRecyclerView() {
@@ -253,7 +333,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initDataFromDB() {
-        taskList = dataBaseManager.getData();
+        taskList = dataBaseManager.getTask();
         taskAdapter = new TaskAdapter(taskList, getApplicationContext());
         recyclerView.setAdapter(taskAdapter);
         taskAdapter.notifyDataSetChanged();
@@ -266,87 +346,6 @@ public class MainActivity extends AppCompatActivity {
         task = findViewById(R.id.inputTask);
         time = findViewById(R.id.inputTime);
         date = findViewById(R.id.inputDate);
-        initSwipe();
-    }
-
-    private void initSwipe() {
-        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
-            @Override
-            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                return true;
-            }
-
-            @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                int position = viewHolder.getAdapterPosition();
-
-                TaskModel taskModel = taskAdapter.getData(position);
-                final String task = taskModel.getTask();
-                final String time = taskModel.getTime();
-                final String date = taskModel.getDate();
-
-                if (direction == ItemTouchHelper.LEFT) {
-                    boolean check = dataBaseManager.deleteData(task, time, date);
-                    taskAdapter.removeItem(position);
-                    taskAdapter.notifyDataSetChanged();
-                    if (check) {
-                        Toast.makeText(getApplicationContext(), R.string.task_deleted, Toast.LENGTH_SHORT).show();
-                    }
-                } else if (direction == ItemTouchHelper.RIGHT) {
-                    editTask(task, time, date);
-                }
-            }
-
-            @Override
-            public void onChildDraw(Canvas canvas, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
-                                    float dX, float dY, int actionState, boolean isCurrentlyActive) {
-
-                Bitmap icon;
-                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
-                    View itemView = viewHolder.itemView;
-                    float height = (float) itemView.getBottom() - (float) itemView.getTop();
-                    float width = height / 3;
-                    int padding = 15;
-
-                    if (dX < -1) {
-                        int color = ContextCompat.getColor(getApplicationContext(), R.color.colorDeleteItem);
-                        paint.setColor(color);
-                        RectF background = new RectF((float) itemView.getLeft() - dX,
-                                (float) itemView.getTop(),
-                                (float) itemView.getRight(),
-                                (float) itemView.getBottom());
-
-                        canvas.drawRect(background, paint);
-                        icon = BitmapFactory.decodeResource(getResources(), R.drawable.delete64);
-                        RectF deleteIcon = new RectF((float) itemView.getRight() - 2 * width,
-                                (float) itemView.getTop() + padding,
-                                (float) itemView.getRight(),
-                                (float) itemView.getBottom() - padding);
-
-                        canvas.drawBitmap(icon, null, deleteIcon, paint);
-                    } else if (dX >= 1) {
-                        int color = ContextCompat.getColor(getApplicationContext(), R.color.colorEditItem);
-                        paint.setColor(color);
-                        RectF background = new RectF((float) itemView.getLeft(),
-                                (float) itemView.getTop(),
-                                (float) itemView.getRight() - dX,
-                                (float) itemView.getBottom());
-
-                        canvas.drawRect(background, paint);
-                        icon = BitmapFactory.decodeResource(getResources(), R.drawable.edit64);
-                        RectF editIcon = new RectF(itemView.getLeft() + padding,
-                                itemView.getTop() + padding,
-                                itemView.getRight() - padding * width - (padding * 4),
-                                itemView.getBottom() - padding);
-
-                        canvas.drawBitmap(icon, null, editIcon, paint);
-                    }
-                }
-                super.onChildDraw(canvas, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-            }
-        };
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
-        itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
     @Override

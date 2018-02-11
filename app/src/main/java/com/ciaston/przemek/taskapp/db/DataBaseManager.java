@@ -32,7 +32,7 @@ public class DataBaseManager extends SQLiteOpenHelper {
         onCreate(sqLiteDatabase);
     }
 
-    public List<TaskModel> getData() {
+    public List<TaskModel> getTask() {
         List<TaskModel> taskList = new ArrayList<>();
         SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
         Cursor cursor = sqLiteDatabase.rawQuery("SELECT * FROM " + DataBaseConstant.TABLE + " ORDER BY " + DataBaseConstant.DATE + " ASC, " + DataBaseConstant.TIME + " ASC;", null);
@@ -40,11 +40,13 @@ public class DataBaseManager extends SQLiteOpenHelper {
         TaskModel taskModel;
 
         while (cursor.moveToNext()) {
+            String idCursor = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseConstant.ID));
             String todoCursor = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseConstant.TASK));
             String timeCursor = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseConstant.TIME));
             String dateCursor = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseConstant.DATE));
 
             taskModel = new TaskModel();
+            taskModel.setId(idCursor);
             taskModel.setTask(todoCursor);
             taskModel.setTime(timeCursor);
             taskModel.setDate(dateCursor);
@@ -55,38 +57,34 @@ public class DataBaseManager extends SQLiteOpenHelper {
         return taskList;
     }
 
-    public void insertData(String todo, String time, String date) {
+    public void insertTask(TaskModel taskModel) {
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(DataBaseConstant.TASK, todo);
-        contentValues.put(DataBaseConstant.TIME, time);
-        contentValues.put(DataBaseConstant.DATE, date);
+        contentValues.put(DataBaseConstant.TASK, taskModel.getTask());
+        contentValues.put(DataBaseConstant.TIME, taskModel.getTime());
+        contentValues.put(DataBaseConstant.DATE, taskModel.getDate());
 
         sqLiteDatabase.insert(DataBaseConstant.TABLE, null, contentValues);
     }
 
-    public boolean deleteData(String todo, String time, String date) {
+    public void updateTask(TaskModel taskModel) {
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
-        String where = DataBaseConstant.TASK + "=? AND "
-                    + DataBaseConstant.TIME + "=? AND "
-                    + DataBaseConstant.DATE + "=?";
-        int result = sqLiteDatabase.delete(DataBaseConstant.TABLE, where, new String[]{todo, time, date});
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DataBaseConstant.TASK, taskModel.getTask());
+        contentValues.put(DataBaseConstant.TIME, taskModel.getTime());
+        contentValues.put(DataBaseConstant.DATE, taskModel.getDate());
+
+        String where = DataBaseConstant.ID + "=?";
+        sqLiteDatabase.update(DataBaseConstant.TABLE, contentValues, where, new String[]{taskModel.getId()});
+    }
+
+    public boolean deleteTask(String id) {
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        String where = DataBaseConstant.ID + "=?";
+        int result = sqLiteDatabase.delete(DataBaseConstant.TABLE, where, new String[]{id});
         if (result > 0) {
             return true;
         }
         return false;
-    }
-
-    public void updateData(String task, String time, String date, String oldTask, String oldTime, String oldDate) {
-        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(DataBaseConstant.TASK, task);
-        contentValues.put(DataBaseConstant.TIME, time);
-        contentValues.put(DataBaseConstant.DATE, date);
-
-        String where = DataBaseConstant.TASK + "=? AND "
-                    + DataBaseConstant.TIME + "=? AND "
-                    + DataBaseConstant.DATE + "=?";
-        sqLiteDatabase.update(DataBaseConstant.TABLE, contentValues, where, new String[]{oldTask, oldTime, oldDate});
     }
 }

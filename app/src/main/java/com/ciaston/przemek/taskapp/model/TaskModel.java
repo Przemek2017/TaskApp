@@ -6,6 +6,7 @@ package com.ciaston.przemek.taskapp.model;
 
 public class TaskModel {
 
+    String id;
     String task;
     String time;
     String date;
@@ -16,6 +17,14 @@ public class TaskModel {
         this.date = date;
     }
     public TaskModel(){}
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getTask() {
         return task;

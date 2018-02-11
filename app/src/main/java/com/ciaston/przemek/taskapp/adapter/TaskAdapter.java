@@ -5,7 +5,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ciaston.przemek.taskapp.R;
 import com.ciaston.przemek.taskapp.model.TaskModel;
@@ -28,17 +30,25 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyHolder> {
 
     @Override
     public MyHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_card_view, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_view, parent, false);
         return new MyHolder(view);
     }
 
     @Override
     public void onBindViewHolder(MyHolder holder, int position) {
-        TaskModel item = taskList.get(position);
+        final TaskModel item = taskList.get(position);
 
         holder.task.setText(item.getTask());
         holder.time.setText(item.getTime().toString());
         holder.date.setText(item.getDate().toString());
+
+        holder.layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(context, "Item: " + item + "\n ID: " + item.getId(), Toast.LENGTH_LONG).show();
+
+            }
+        });
     }
 
     public TaskModel getData(int position){
@@ -46,11 +56,11 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyHolder> {
         return item;
     }
 
-    public void removeItem(int position){
-        taskList.remove(position);
-        notifyItemRemoved(position);
-        notifyItemChanged(position, taskList.size());
-    }
+//    public void removeItem(int position){
+//        taskList.remove(position);
+//        notifyItemRemoved(position);
+//        notifyItemChanged(position, taskList.size());
+//    }
 
     @Override
     public int getItemCount() {
@@ -63,12 +73,14 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyHolder> {
         public TextView time;
         public TextView date;
 
+        public View layout;
+
         public MyHolder(View itemView) {
             super(itemView);
-
-            task = itemView.findViewById(R.id.inputTask);
-            time = itemView.findViewById(R.id.inputTime);
-            date = itemView.findViewById(R.id.inputDate);
+            layout = itemView;
+            task = layout.findViewById(R.id.inputTask);
+            time = layout.findViewById(R.id.inputTime);
+            date = layout.findViewById(R.id.inputDate);
         }
 
     }

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
+    <!--<color name="colorPrimary">#3F51B5</color>-->
+    <!--<color name="colorPrimaryDark">#303F9F</color>-->
+    <color name="colorPrimary">#8f8f8f</color>
+    <color name="colorPrimaryDark">#979797</color>
+    <color name="colorBackground">#e5feff</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="colorDeleteItem">#ffcccc</color>
-    <color name="colorEditItem">#a2f45f</color>
-    <color name="colorItem">#ececec</color>
+    <color name="colorItem">#d7d2a6</color>
 </resources>

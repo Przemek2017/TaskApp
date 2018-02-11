@@ -4,9 +4,11 @@
     <string name="action_settings">Dodaj zadanie</string>
     <string name="task_deleted">Usuń zadanie</string>
     <string name="done">Gotowe</string>
-    <string name="cancel">Skasuj</string>
+    <string name="exit">Wyjdź</string>
     <string name="add">Dodaj</string>
     <string name="edit_task">Edycja:</string>
     <string name="add_task">Dodaj zadanie:</string>
     <string name="its_high_time_to">Już najwyższy czas...</string>
+    <string name="edit">Edytuj</string>
+    <string name="delete">Usuń</string>
 </resources>

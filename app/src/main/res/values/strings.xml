@@ -1,11 +1,13 @@
 <resources>
-    <string name="app_name">TodoApp</string>
+    <string name="app_name">MyTask</string>
     <string name="action_settings">Add task :)</string>
     <string name="task_deleted">Task deleted</string>
     <string name="its_high_time_to">It\'s high time to...</string>
     <string name="add_task">Add Your task:</string>
     <string name="edit_task">Edit task:</string>
     <string name="done">Done</string>
-    <string name="cancel">Cancel</string>
+    <string name="exit">Exit</string>
     <string name="add">Add</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
 </resources>

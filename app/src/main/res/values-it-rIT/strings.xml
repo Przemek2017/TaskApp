@@ -4,9 +4,11 @@
     <string name="action_settings">Aggiungi il compito</string>
     <string name="task_deleted">Elimina</string>
     <string name="done">Fatto</string>
-    <string name="cancel">Cancella</string>
+    <string name="exit">Uscita</string>
     <string name="add">Aggiungi</string>
     <string name="edit_task">Modifica:</string>
     <string name="add_task">Aggiungi il compito:</string>
     <string name="its_high_time_to">Giunta l\'ora di...</string>
+    <string name="delete">Rimuovere</string>
+    <string name="edit">Modifica</string>
 </resources>
