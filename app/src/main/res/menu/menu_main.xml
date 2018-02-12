@@ -4,14 +4,9 @@
     tools:context="com.ciaston.przemek.taskapp.MainActivity">
     <item
         android:id="@+id/add_task"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
         android:icon="@drawable/list32"
+        android:orderInCategory="100"
+        android:title="@string/add_task"
         app:showAsAction="ifRoom" />
-    <!--<item-->
-        <!--android:id="@+id/noti"-->
-        <!--android:orderInCategory="101"-->
-        <!--android:title="@string/action_settings"-->
-        <!--android:icon="@drawable/alarm32"-->
-        <!--app:showAsAction="ifRoom" />-->
+
 </menu>

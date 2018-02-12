@@ -10,6 +10,8 @@ import android.support.v7.widget.helper.ItemTouchHelper.Callback;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.ciaston.przemek.taskapp.MainActivity;
+import com.ciaston.przemek.taskapp.R;
 import com.ciaston.przemek.taskapp.state.ButtonState;
 
 
@@ -18,6 +20,9 @@ import com.ciaston.przemek.taskapp.state.ButtonState;
  */
 
 public class SwipeController extends Callback {
+
+    String edit = MainActivity.resources.getString(R.string.edit).toUpperCase();
+    String delete = MainActivity.resources.getString(R.string.delete).toUpperCase();
 
     private boolean swipeBack = false;
     private static final float buttonWidth = 100;
@@ -171,7 +176,7 @@ public class SwipeController extends Callback {
                 itemView.getBottom());
         paintButton.setColor(Color.rgb(90, 205, 115));
         canvas.drawRoundRect(leftButton, corners, corners, paintButton);
-        drawText("EDIT", canvas, leftButton, paintButton);
+        drawText(edit, canvas, leftButton, paintButton);
 
         RectF rightButton = new RectF(
                 itemView.getRight() - buttonWidthWithoutPadding,
@@ -180,7 +185,7 @@ public class SwipeController extends Callback {
                 itemView.getBottom());
         paintButton.setColor(Color.rgb(250, 130, 110));
         canvas.drawRoundRect(rightButton, corners, corners, paintButton);
-        drawText("DELETE", canvas, rightButton, paintButton);
+        drawText(delete, canvas, rightButton, paintButton);
 
         buttonInstance = null;
         if (buttonState == ButtonState.LEFT_VISIBLE) {

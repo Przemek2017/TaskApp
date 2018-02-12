@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
@@ -48,14 +49,13 @@ public class MainActivity extends AppCompatActivity {
 
     TextView task, time, date, addTime, addDate;
     private RecyclerView recyclerView;
-
+    public static Resources resources;
     private List<TaskModel> taskList = new ArrayList<>();
     private TaskAdapter taskAdapter;
 
     private DataBaseManager dataBaseManager;
 
     private Calendar getDate = Calendar.getInstance();
-
     private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -65,10 +65,12 @@ public class MainActivity extends AppCompatActivity {
     private IntentFilter intentFilter;
 
     private SwipeController swipeController;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        resources = getResources();
 
         final String appName = getResources().getString(R.string.app_name);
         showAppNameCollapsing(appName);
@@ -90,8 +92,9 @@ public class MainActivity extends AppCompatActivity {
                 dataBaseManager.deleteTask(taskModel.getId());
                 initDataFromDB();
             }
+
             @Override
-            public void onLeftClicked(int position){
+            public void onLeftClicked(int position) {
                 TaskModel taskModel = taskAdapter.getData(position);
                 editTask(taskModel);
             }
@@ -144,14 +147,16 @@ public class MainActivity extends AppCompatActivity {
 
             String title = getResources().getString(R.string.its_high_time_to);
 
-            String setTime1 = timeFormat.format(calendar.getTime());
-            String setDate1 = dateFormat.format(calendar.getTime());
+            String getTimeFromCalendar = timeFormat.format(calendar.getTime());
+            String getDateFromCalendar = dateFormat.format(calendar.getTime());
 
             List<TaskModel> taskList = dataBaseManager.getTask();
             for (TaskModel taskModel : taskList) {
                 String notificationTime = taskModel.getTime().toString();
                 String notificationDate = taskModel.getDate().toString();
-                if (notificationTime.equals(setTime1) && notificationDate.equals(setDate1)) {
+                if (notificationTime.equals(getTimeFromCalendar) && notificationDate.equals(getDateFromCalendar)) {
+                    TaskNotification.createNotification(getApplicationContext(), title, taskModel.getTask());
+                } else if (notificationTime.equals(getTimeFromCalendar) && notificationDate.isEmpty()){
                     TaskNotification.createNotification(getApplicationContext(), title, taskModel.getTask());
                 }
             }
@@ -193,10 +198,11 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.setIcon(R.drawable.list64);
 
         LayoutInflater inflater = getLayoutInflater();
-        View addTaskView = inflater.inflate(R.layout.alert_dialog_view, null);
+        final View addTaskView = inflater.inflate(R.layout.alert_dialog_view, null);
         addTaskView.setBackgroundResource(R.drawable.bg_add_item_color);
 
         final EditText addTodo = addTaskView.findViewById(R.id.addTask);
+        addTodo.setHint(R.string.add_task);
         final ImageButton addDateImage = addTaskView.findViewById(R.id.imageAddDate);
         final ImageButton addTimeImage = addTaskView.findViewById(R.id.imageAddTime);
 
@@ -229,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                final String task = addTodo.getText().toString();
+                final String task = addTodo.getText().toString().trim();
                 final String time = addTime.getText().toString();
                 final String date = addDate.getText().toString();
 
@@ -239,9 +245,20 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        alertDialog.setNeutralButton(R.string.clear, null);
+
         final AlertDialog alert = alertDialog.create();
         alert.show();
         alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+        alert.getButton(AlertDialog.BUTTON_NEUTRAL).setEnabled(false);
+        alert.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                addTodo.setText("");
+                addTime.setText("");
+                addDate.setText("");
+            }
+        });
 
         isEnabledPositiveButton(addTodo, alert);
     }
@@ -256,6 +273,7 @@ public class MainActivity extends AppCompatActivity {
         editView.setBackgroundResource(R.drawable.bg_edit_item_color);
 
         final EditText taskEdit = editView.findViewById(R.id.addTask);
+        taskEdit.setHint(R.string.add_task);
         final ImageButton addDateImage = editView.findViewById(R.id.imageAddDate);
         final ImageButton addTimeImage = editView.findViewById(R.id.imageAddTime);
 
@@ -288,11 +306,12 @@ public class MainActivity extends AppCompatActivity {
                 dialogInterface.dismiss();
             }
         });
+
         alertDialog.setPositiveButton(R.string.done, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
 
-                taskModel.setTask(taskEdit.getText().toString());
+                taskModel.setTask(taskEdit.getText().toString().trim());
                 taskModel.setTime(addTime.getText().toString());
                 taskModel.setDate(addDate.getText().toString());
 
@@ -300,27 +319,45 @@ public class MainActivity extends AppCompatActivity {
                 initDataFromDB();
             }
         });
-        AlertDialog alert = alertDialog.create();
+
+        alertDialog.setNeutralButton(R.string.clear, null);
+
+        final AlertDialog alert = alertDialog.create();
         alert.show();
+        alert.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                taskEdit.setText("");
+                addTime.setText("");
+                addDate.setText("");
+            }
+        });
 
         isEnabledPositiveButton(taskEdit, alert);
     }
 
-    private void isEnabledPositiveButton(EditText addTodo, final AlertDialog alert) {
+    private void isEnabledPositiveButton(final EditText addTodo, final AlertDialog alert) {
+
         addTodo.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (TextUtils.isEmpty(charSequence)){
+                String editText = charSequence.toString().trim();
+                if (TextUtils.isEmpty(editText)) {
                     alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                    alert.getButton(AlertDialog.BUTTON_NEUTRAL).setEnabled(false);
                 }
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
-                if (!TextUtils.isEmpty(editable)){
+                String editText = editable.toString().trim();
+                if (!TextUtils.isEmpty(editText)) {
                     alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                    alert.getButton(AlertDialog.BUTTON_NEUTRAL).setEnabled(true);
                 }
             }
         });
