@@ -27,9 +27,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -47,9 +49,10 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static Resources resources;
+
     TextView task, time, date, addTime, addDate;
     private RecyclerView recyclerView;
-    public static Resources resources;
     private List<TaskModel> taskList = new ArrayList<>();
     private TaskAdapter taskAdapter;
 
@@ -58,12 +61,10 @@ public class MainActivity extends AppCompatActivity {
     private Calendar getDate = Calendar.getInstance();
     private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
     private String setTime = "";
     private String setDate = "";
 
     private IntentFilter intentFilter;
-
     private SwipeController swipeController;
 
     @Override
@@ -156,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
                 String notificationDate = taskModel.getDate().toString();
                 if (notificationTime.equals(getTimeFromCalendar) && notificationDate.equals(getDateFromCalendar)) {
                     TaskNotification.createNotification(getApplicationContext(), title, taskModel.getTask());
-                } else if (notificationTime.equals(getTimeFromCalendar) && notificationDate.isEmpty()){
+                } else if (notificationTime.equals(getTimeFromCalendar) && notificationDate.isEmpty()) {
                     TaskNotification.createNotification(getApplicationContext(), title, taskModel.getTask());
                 }
             }
@@ -201,29 +202,19 @@ public class MainActivity extends AppCompatActivity {
         final View addTaskView = inflater.inflate(R.layout.alert_dialog_view, null);
         addTaskView.setBackgroundResource(R.drawable.bg_add_item_color);
 
-        final EditText addTodo = addTaskView.findViewById(R.id.addTask);
-        addTodo.setHint(R.string.add_task);
+        final EditText addTask = addTaskView.findViewById(R.id.addTask);
+        addTask.setHint(R.string.add_task);
         final ImageButton addDateImage = addTaskView.findViewById(R.id.imageAddDate);
         final ImageButton addTimeImage = addTaskView.findViewById(R.id.imageAddTime);
 
         addDate = addTaskView.findViewById(R.id.textViewDate);
         addTime = addTaskView.findViewById(R.id.textViewTime);
 
-        addTimeImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updateTime();
-            }
-        });
-        addDateImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updateDate();
-            }
-        });
+        onClickImages(addDateImage, addTimeImage);
 
         alertDialog.setView(addTaskView);
         alertDialog.setCancelable(false);
+
         alertDialog.setNegativeButton(R.string.exit, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -235,11 +226,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                final String task = addTodo.getText().toString().trim();
-                final String time = addTime.getText().toString();
-                final String date = addDate.getText().toString();
+                final String taskAdd = addTask.getText().toString().trim();
+                final String timeAdd = addTime.getText().toString();
+                final String dateAdd = addDate.getText().toString();
 
-                TaskModel taskModel = new TaskModel(task, time, date);
+                TaskModel taskModel = new TaskModel(taskAdd, timeAdd, dateAdd);
                 dataBaseManager.insertTask(taskModel);
                 initDataFromDB();
             }
@@ -254,13 +245,13 @@ public class MainActivity extends AppCompatActivity {
         alert.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                addTodo.setText("");
+                addTask.setText("");
                 addTime.setText("");
                 addDate.setText("");
             }
         });
 
-        isEnabledPositiveButton(addTodo, alert);
+        isEnabledPositiveButton(addTask, alert);
     }
 
     private void editTask(final TaskModel taskModel) {
@@ -281,22 +272,12 @@ public class MainActivity extends AppCompatActivity {
         addTime = editView.findViewById(R.id.textViewTime);
 
         taskEdit.setText(taskModel.getTask());
-        addTime.setText(taskModel.getTime());
         addDate.setText(taskModel.getDate());
+        addTime.setText(taskModel.getTime());
+        emptyClockWatcher(addDateImage, addTimeImage);
 
-        addDateImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updateDate();
-            }
-        });
+        onClickImages(addDateImage, addTimeImage);
 
-        addTimeImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updateTime();
-            }
-        });
         alertDialog.setCancelable(false);
         alertDialog.setView(editView);
         alertDialog.setNegativeButton(R.string.exit, new DialogInterface.OnClickListener() {
@@ -310,7 +291,6 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.setPositiveButton(R.string.done, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-
                 taskModel.setTask(taskEdit.getText().toString().trim());
                 taskModel.setTime(addTime.getText().toString());
                 taskModel.setDate(addDate.getText().toString());
@@ -332,21 +312,110 @@ public class MainActivity extends AppCompatActivity {
                 addDate.setText("");
             }
         });
-
         isEnabledPositiveButton(taskEdit, alert);
     }
 
-    private void isEnabledPositiveButton(final EditText addTodo, final AlertDialog alert) {
-
-        addTodo.addTextChangedListener(new TextWatcher() {
+    // onClick czyści text, onLongClick wyświetla kalendarz/zegar
+    private void onClickImages(ImageButton addDateImage, ImageButton addTimeImage) {
+        addTimeImage.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            public void onClick(View view) {
+                addTime.setText("");
             }
+        });
+        addTimeImage.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                updateTime();
+                return true;
+            }
+        });
+
+        addDateImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                addDate.setText("");
+            }
+        });
+
+        addDateImage.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                updateDate();
+                return true;
+            }
+        });
+    }
+
+    // nasłuchuje czy zegar != "" i ustawia widok kalendarz lub kalendarz/zegar
+    private void emptyClockWatcher(final ImageButton addDateImage, final ImageButton addTimeImage) {
+        addTime.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                String editText = charSequence.toString().trim();
-                if (TextUtils.isEmpty(editText)) {
+                int timeLength = addTime.getText().length();
+                switch (timeLength){
+                    case 0:
+                        layoutClock(addDateImage, addTimeImage);
+                        break;
+                    default:
+                        layoutClockCalendar(addTimeImage, addDateImage);
+                        break;
+                }
+            }
+            @Override
+            public void afterTextChanged(Editable editable) {}
+        });
+    }
+
+    // ukrywa kalendarz gdy zegar = ""
+    private void layoutClock(ImageButton addDateImage, ImageButton addTimeImage) {
+        LinearLayout.LayoutParams layoutParams =
+                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        layoutParams.setMargins(0, 0, 0, 0);
+
+        addDateImage.setVisibility(View.GONE);
+        addDate.setText("");
+        addDate.setVisibility(View.GONE);
+
+        addDateImage.setLayoutParams(layoutParams);
+        addDate.setLayoutParams(layoutParams);
+        addTimeImage.setLayoutParams(layoutParams);
+        addTime.setLayoutParams(layoutParams);
+    }
+
+    // ustawia widoczny kalendarz gdy zegar != ""
+    private void layoutClockCalendar(ImageButton addTimeImage, ImageButton addDateImage) {
+        int margin = getResources().getDimensionPixelSize(R.dimen.margin_between_clock_calendar);
+
+        LinearLayout.LayoutParams layoutParamsTime =
+                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        layoutParamsTime.setMargins(margin, 0, 0, 0);
+        addTimeImage.setLayoutParams(layoutParamsTime);
+        addTime.setLayoutParams(layoutParamsTime);
+
+        LinearLayout.LayoutParams layoutParamsDate =
+                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        layoutParamsDate.setMargins(0, 0, margin, 0);
+        addDateImage.setLayoutParams(layoutParamsDate);
+        addDate.setLayoutParams(layoutParamsDate);
+
+        addDateImage.setVisibility(View.VISIBLE);
+        addDate.setVisibility(View.VISIBLE);
+    }
+
+    // nasłuchuje pole task, jeśli != "" ustawia widoczny positive/neutral button
+    private void isEnabledPositiveButton(final EditText taskWatcher, final AlertDialog alert) {
+        taskWatcher.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (TextUtils.isEmpty(charSequence)) {
                     alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
                     alert.getButton(AlertDialog.BUTTON_NEUTRAL).setEnabled(false);
                 }
@@ -354,8 +423,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                String editText = editable.toString().trim();
-                if (!TextUtils.isEmpty(editText)) {
+                if (!TextUtils.isEmpty(editable)) {
                     alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
                     alert.getButton(AlertDialog.BUTTON_NEUTRAL).setEnabled(true);
                 }
@@ -363,6 +431,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    // inicjalizacja recyclerView
     private void initRecyclerView() {
         recyclerView.setLayoutManager(new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL));
         recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
@@ -374,12 +443,10 @@ public class MainActivity extends AppCompatActivity {
         taskAdapter = new TaskAdapter(taskList, getApplicationContext());
         recyclerView.setAdapter(taskAdapter);
         taskAdapter.notifyDataSetChanged();
-
     }
 
     private void findViewById() {
         recyclerView = findViewById(R.id.recyclerView);
-
         task = findViewById(R.id.inputTask);
         time = findViewById(R.id.inputTime);
         date = findViewById(R.id.inputDate);
@@ -387,7 +454,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }

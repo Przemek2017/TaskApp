@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,16 +42,16 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyHolder> {
         holder.time.setText(item.getTime().toString());
         holder.date.setText(item.getDate().toString());
 
-        holder.layout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(context, "Item: " + item + "\n ID: " + item.getId(), Toast.LENGTH_LONG).show();
+        if (item.getDate().isEmpty()) {
 
-            }
-        });
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) holder.time.getLayoutParams();
+            params.height = LinearLayout.LayoutParams.MATCH_PARENT;
+            holder.time.setLayoutParams(params);
+            holder.time.setTextSize(20);
+        }
     }
 
-    public TaskModel getData(int position){
+    public TaskModel getData(int position) {
         TaskModel item = taskList.get(position);
         return item;
     }
@@ -66,7 +67,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyHolder> {
         return taskList.size();
     }
 
-    public class MyHolder extends RecyclerView.ViewHolder{
+    public class MyHolder extends RecyclerView.ViewHolder {
 
         public TextView task;
         public TextView time;
@@ -80,6 +81,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyHolder> {
             task = layout.findViewById(R.id.inputTask);
             time = layout.findViewById(R.id.inputTime);
             date = layout.findViewById(R.id.inputDate);
+
         }
 
     }

@@ -10,5 +10,6 @@
     <string name="its_high_time_to">Już czas...</string>
     <string name="edit">Edytuj</string>
     <string name="delete">Usuń</string>
-    <string name="clear">Wyczyść</string>
+    <string name="clear">Wyczyść wszystko</string>
+    <string name="is_empty_field">Zadanie i godzina nie mogą być puste</string>
 </resources>

@@ -10,5 +10,6 @@
     <string name="task_deleted">Löschen Sie die Aufgabe</string>
     <string name="edit">Entfernen</string>
     <string name="delete">Bearbeiten</string>
-    <string name="clear">Klar</string>
+    <string name="clear">Alles löschen</string>
+    <string name="is_empty_field">Aufgabe und Zeit können nicht leer sein</string>
 </resources>

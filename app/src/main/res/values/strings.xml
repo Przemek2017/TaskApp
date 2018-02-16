@@ -9,5 +9,6 @@
     <string name="add">Add</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
-    <string name="clear">Clear</string>
+    <string name="clear">Clear all</string>
+    <string name="is_empty_field">Task and time can not be empty</string>
 </resources>
