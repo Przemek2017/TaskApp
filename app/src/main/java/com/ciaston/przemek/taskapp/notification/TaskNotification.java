@@ -35,7 +35,11 @@ public class TaskNotification {
                 .setContentIntent(pendingIntent);
 
         Notification notification = builder.build();
-        notification.vibrate = new long[]{150, 250, 150, 250, 150, 250};
+        long pause = 120;
+        long shortVibra = 150;
+        long longVibra = 400;
+        notification.vibrate =
+                new long[]{pause, shortVibra, pause, longVibra, pause, shortVibra, pause, longVibra, pause, shortVibra, pause, longVibra};
         notification.flags = Notification.FLAG_AUTO_CANCEL;
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);

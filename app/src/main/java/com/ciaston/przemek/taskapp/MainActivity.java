@@ -2,13 +2,12 @@ package com.ciaston.przemek.taskapp;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -23,6 +22,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
@@ -34,11 +34,12 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.ciaston.przemek.taskapp.adapter.TaskAdapter;
+import com.ciaston.przemek.taskapp.broadcast.NotificationBroadcast;
 import com.ciaston.przemek.taskapp.controller.SwipeController;
 import com.ciaston.przemek.taskapp.controller.SwipeControllerActions;
-import com.ciaston.przemek.taskapp.notification.TaskNotification;
 import com.ciaston.przemek.taskapp.db.DataBaseManager;
 import com.ciaston.przemek.taskapp.model.TaskModel;
 
@@ -52,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     public static Resources resources;
 
     TextView task, time, date, addTime, addDate;
+    TextView toastTextView;
     private RecyclerView recyclerView;
     private List<TaskModel> taskList = new ArrayList<>();
     private TaskAdapter taskAdapter;
@@ -61,8 +63,7 @@ public class MainActivity extends AppCompatActivity {
     private Calendar getDate = Calendar.getInstance();
     private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    private String setTime = "";
-    private String setDate = "";
+    private String setTime = "", setDate = "", taskMessage = "";
 
     private IntentFilter intentFilter;
     private SwipeController swipeController;
@@ -71,13 +72,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        // dostęp do zasobów
         resources = getResources();
 
-        final String appName = getResources().getString(R.string.app_name);
+        final String appName = resources.getString(R.string.app_name);
         showAppNameCollapsing(appName);
 
         dataBaseManager = new DataBaseManager(this);
-        intentForNotification();
+        notificationIntent();
 
         findViewById();
         initDataFromDB();
@@ -86,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        // kontroler edycja/usuń
         swipeController = new SwipeController(new SwipeControllerActions() {
             @Override
             public void onRightClicked(int position) {
@@ -100,7 +103,6 @@ public class MainActivity extends AppCompatActivity {
                 editTask(taskModel);
             }
         });
-
         ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
         itemTouchhelper.attachToRecyclerView(recyclerView);
 
@@ -110,7 +112,6 @@ public class MainActivity extends AppCompatActivity {
                 swipeController.onDraw(c);
             }
         });
-
     }
 
     private void showAppNameCollapsing(final String appName) {
@@ -136,42 +137,22 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void intentForNotification() {
+    private void notificationIntent() {
         intentFilter = new IntentFilter(Intent.ACTION_TIME_TICK);
-        registerReceiver(broadcastReceiver, intentFilter);
+        registerReceiver(new NotificationBroadcast(), intentFilter);
     }
 
-    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Calendar calendar = Calendar.getInstance();
-
-            String title = getResources().getString(R.string.its_high_time_to);
-
-            String getTimeFromCalendar = timeFormat.format(calendar.getTime());
-            String getDateFromCalendar = dateFormat.format(calendar.getTime());
-
-            List<TaskModel> taskList = dataBaseManager.getTask();
-            for (TaskModel taskModel : taskList) {
-                String notificationTime = taskModel.getTime().toString();
-                String notificationDate = taskModel.getDate().toString();
-                if (notificationTime.equals(getTimeFromCalendar) && notificationDate.equals(getDateFromCalendar)) {
-                    TaskNotification.createNotification(getApplicationContext(), title, taskModel.getTask());
-                } else if (notificationTime.equals(getTimeFromCalendar) && notificationDate.isEmpty()) {
-                    TaskNotification.createNotification(getApplicationContext(), title, taskModel.getTask());
-                }
-            }
-        }
-    };
-
+    // widok kalendarza
     private void updateDate() {
         new DatePickerDialog(this, dateListener, getDate.get(Calendar.YEAR), getDate.get(Calendar.MONTH), getDate.get(Calendar.DAY_OF_MONTH)).show();
     }
 
+    // widok zegara
     private void updateTime() {
         new TimePickerDialog(this, timeListener, getDate.get(Calendar.HOUR_OF_DAY), getDate.get(Calendar.MINUTE), true).show();
     }
 
+    // nasłuchuje wybór daty
     DatePickerDialog.OnDateSetListener dateListener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(DatePicker datePicker, int year, int monthOfYear, int dayOfMonth) {
@@ -183,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    // nasłuchuje wybór godziny
     TimePickerDialog.OnTimeSetListener timeListener = new TimePickerDialog.OnTimeSetListener() {
         @Override
         public void onTimeSet(TimePicker timePicker, int hourOfDay, int minute) {
@@ -193,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    // dodanie nowego zadania
     private void addTask() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
         alertDialog.setTitle(R.string.add_task);
@@ -210,6 +193,8 @@ public class MainActivity extends AppCompatActivity {
         addDate = addTaskView.findViewById(R.id.textViewDate);
         addTime = addTaskView.findViewById(R.id.textViewTime);
 
+        layoutClock(addDateImage, addTimeImage);
+        emptyClockWatcher(addDateImage, addTimeImage);
         onClickImages(addDateImage, addTimeImage);
 
         alertDialog.setView(addTaskView);
@@ -229,6 +214,8 @@ public class MainActivity extends AppCompatActivity {
                 final String taskAdd = addTask.getText().toString().trim();
                 final String timeAdd = addTime.getText().toString();
                 final String dateAdd = addDate.getText().toString();
+
+                taskToast(timeAdd, dateAdd);
 
                 TaskModel taskModel = new TaskModel(taskAdd, timeAdd, dateAdd);
                 dataBaseManager.insertTask(taskModel);
@@ -254,6 +241,7 @@ public class MainActivity extends AppCompatActivity {
         isEnabledPositiveButton(addTask, alert);
     }
 
+    // edycja istniejącego zadania
     private void editTask(final TaskModel taskModel) {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
         alertDialog.setTitle(R.string.edit_task);
@@ -291,9 +279,15 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.setPositiveButton(R.string.done, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                taskModel.setTask(taskEdit.getText().toString().trim());
-                taskModel.setTime(addTime.getText().toString());
-                taskModel.setDate(addDate.getText().toString());
+                String getTask = taskEdit.getText().toString().trim();
+                String getTime = addTime.getText().toString();
+                String getDate = addDate.getText().toString();
+
+                taskModel.setTask(getTask);
+                taskModel.setTime(getTime);
+                taskModel.setDate(getDate);
+
+                taskToast(getTime, getDate);
 
                 dataBaseManager.updateTask(taskModel);
                 initDataFromDB();
@@ -352,12 +346,13 @@ public class MainActivity extends AppCompatActivity {
         addTime.addTextChangedListener(new TextWatcher() {
 
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 int timeLength = addTime.getText().length();
-                switch (timeLength){
+                switch (timeLength) {
                     case 0:
                         layoutClock(addDateImage, addTimeImage);
                         break;
@@ -366,8 +361,10 @@ public class MainActivity extends AppCompatActivity {
                         break;
                 }
             }
+
             @Override
-            public void afterTextChanged(Editable editable) {}
+            public void afterTextChanged(Editable editable) {
+            }
         });
     }
 
@@ -411,7 +408,8 @@ public class MainActivity extends AppCompatActivity {
     private void isEnabledPositiveButton(final EditText taskWatcher, final AlertDialog alert) {
         taskWatcher.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -438,6 +436,24 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
     }
 
+    // toast informujący o rodzaju ustawionego przypomnienia
+    private void taskToast(String time, String date) {
+        if (!time.isEmpty() && !date.isEmpty()) {
+            taskMessage = resources.getString(R.string.one_time_reminder);
+        } else {
+            taskMessage = resources.getString(R.string.daily_reminder);
+        }
+        LayoutInflater inflater = getLayoutInflater();
+        View toastView = inflater.inflate(R.layout.toast_view, (ViewGroup) findViewById(R.id.my_toast));
+        TextView toastTextView = toastView.findViewById(R.id.toastTextView);
+        toastTextView.setText(taskMessage);
+        Toast toast = new Toast(getApplicationContext());
+        toast.setDuration(Toast.LENGTH_LONG);
+        toast.setView(toastView);
+        toast.setGravity(Gravity.CENTER_VERTICAL | Gravity.BOTTOM, 0, 0);
+        toast.show();
+    }
+
     private void initDataFromDB() {
         taskList = dataBaseManager.getTask();
         taskAdapter = new TaskAdapter(taskList, getApplicationContext());
@@ -450,6 +466,7 @@ public class MainActivity extends AppCompatActivity {
         task = findViewById(R.id.inputTask);
         time = findViewById(R.id.inputTime);
         date = findViewById(R.id.inputDate);
+        toastTextView = findViewById(R.id.toastTextView);
     }
 
     @Override
@@ -469,4 +486,3 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 }
-

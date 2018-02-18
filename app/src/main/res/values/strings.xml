@@ -10,5 +10,6 @@
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="clear">Clear all</string>
-    <string name="is_empty_field">Task and time can not be empty</string>
+    <string name="daily_reminder">A daily reminder set</string>
+    <string name="one_time_reminder">One-time reminder set</string>
 </resources>

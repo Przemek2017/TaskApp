@@ -11,5 +11,6 @@
     <string name="edit">Entfernen</string>
     <string name="delete">Bearbeiten</string>
     <string name="clear">Alles löschen</string>
-    <string name="is_empty_field">Aufgabe und Zeit können nicht leer sein</string>
+    <string name="one_time_reminder">Einmalige Erinnerung</string>
+    <string name="daily_reminder">Tägliche Erinnerung wurde festgelegt</string>
 </resources>

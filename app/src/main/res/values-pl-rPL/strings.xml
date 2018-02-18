@@ -11,5 +11,6 @@
     <string name="edit">Edytuj</string>
     <string name="delete">Usuń</string>
     <string name="clear">Wyczyść wszystko</string>
-    <string name="is_empty_field">Zadanie i godzina nie mogą być puste</string>
+    <string name="daily_reminder">Ustawiono dzienne przypomnienie</string>
+    <string name="one_time_reminder">Ustawiono jednorazowe przypomnienie</string>
 </resources>

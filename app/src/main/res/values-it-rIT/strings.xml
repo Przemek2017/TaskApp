@@ -11,5 +11,6 @@
     <string name="delete">Rimuovere</string>
     <string name="edit">Modifica</string>
     <string name="clear">Chiaro tutto</string>
-    <string name="is_empty_field">Il compito e \'orario non possono essere vuoti</string>
+    <string name="one_time_reminder">Un solo set di promemoria</string>
+    <string name="daily_reminder">È stato impostato un promemoria giornaliero</string>
 </resources>
