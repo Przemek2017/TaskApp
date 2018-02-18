@@ -7,10 +7,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
     private IntentFilter intentFilter;
     private SwipeController swipeController;
+    private Menu menuItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +115,13 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    // intent filter
+    private void notificationIntent() {
+        intentFilter = new IntentFilter(Intent.ACTION_TIME_TICK);
+        registerReceiver(new NotificationBroadcast(), intentFilter);
+    }
+
+    // widoczność nazwy aplikacji gdy zwinięty, podmiana ikony +
     private void showAppNameCollapsing(final String appName) {
         final CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.toolbar_layout);
         AppBarLayout appBarLayout = findViewById(R.id.app_bar);
@@ -128,18 +136,15 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if (scrollRange + verticalOffset == 0) {
                     collapsingToolbarLayout.setTitle(appName);
+                    menuItem.getItem(0).setIcon(ContextCompat.getDrawable(getApplicationContext(), R.drawable.add_white32));
                     showAppName = true;
                 } else if (showAppName) {
                     collapsingToolbarLayout.setTitle(" ");
+                    menuItem.getItem(0).setIcon(ContextCompat.getDrawable(getApplicationContext(), R.drawable.add_black32));
                     showAppName = false;
                 }
             }
         });
-    }
-
-    private void notificationIntent() {
-        intentFilter = new IntentFilter(Intent.ACTION_TIME_TICK);
-        registerReceiver(new NotificationBroadcast(), intentFilter);
     }
 
     // widok kalendarza
@@ -472,6 +477,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        this.menuItem = menu;
         return true;
     }
 

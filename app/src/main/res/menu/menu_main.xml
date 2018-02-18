@@ -4,7 +4,7 @@
     tools:context="com.ciaston.przemek.taskapp.MainActivity">
     <item
         android:id="@+id/add_task"
-        android:icon="@drawable/add_white32"
+        android:icon="@drawable/add_black32"
         android:orderInCategory="100"
         android:title="@string/add_task"
         app:showAsAction="ifRoom" />
