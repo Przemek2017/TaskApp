@@ -35,7 +35,10 @@ public class DataBaseManager extends SQLiteOpenHelper {
     public List<TaskModel> getTask() {
         List<TaskModel> taskList = new ArrayList<>();
         SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
-        Cursor cursor = sqLiteDatabase.rawQuery("SELECT * FROM " + DataBaseConstant.TABLE + " ORDER BY " + DataBaseConstant.DATE + " ASC, " + DataBaseConstant.TIME + " ASC;", null);
+        Cursor cursor = sqLiteDatabase.rawQuery("SELECT * FROM " + DataBaseConstant.TABLE
+                + " ORDER BY " + DataBaseConstant.DATE
+                + " ASC, " + DataBaseConstant.TIME
+                + " ASC;", null);
         StringBuffer stringBuffer = new StringBuffer();
         TaskModel taskModel;
 

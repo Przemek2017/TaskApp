@@ -67,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
 
     private IntentFilter intentFilter;
     private SwipeController swipeController;
-    private Menu menuItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,11 +135,9 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if (scrollRange + verticalOffset == 0) {
                     collapsingToolbarLayout.setTitle(appName);
-                    menuItem.getItem(0).setIcon(ContextCompat.getDrawable(getApplicationContext(), R.drawable.add_white32));
                     showAppName = true;
                 } else if (showAppName) {
                     collapsingToolbarLayout.setTitle(" ");
-                    menuItem.getItem(0).setIcon(ContextCompat.getDrawable(getApplicationContext(), R.drawable.add_black32));
                     showAppName = false;
                 }
             }
@@ -455,7 +452,7 @@ public class MainActivity extends AppCompatActivity {
         Toast toast = new Toast(getApplicationContext());
         toast.setDuration(Toast.LENGTH_LONG);
         toast.setView(toastView);
-        toast.setGravity(Gravity.CENTER_VERTICAL | Gravity.BOTTOM, 0, 0);
+        toast.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL, 0, 0);
         toast.show();
     }
 
@@ -477,8 +474,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-
-        this.menuItem = menu;
         return true;
     }
 
