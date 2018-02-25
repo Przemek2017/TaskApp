@@ -48,6 +48,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyHolder> {
             holder.time.setLayoutParams(params);
             holder.time.setTextSize(20);
         }
+
     }
 
     public TaskModel getData(int position) {

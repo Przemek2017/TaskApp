@@ -4,13 +4,11 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -37,11 +35,11 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.ciaston.przemek.taskapp.adapter.TaskAdapter;
-import com.ciaston.przemek.taskapp.broadcast.NotificationBroadcast;
 import com.ciaston.przemek.taskapp.controller.SwipeController;
 import com.ciaston.przemek.taskapp.controller.SwipeControllerActions;
 import com.ciaston.przemek.taskapp.db.DataBaseManager;
 import com.ciaston.przemek.taskapp.model.TaskModel;
+import com.ciaston.przemek.taskapp.service.TaskService;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -65,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private String setTime = "", setDate = "", taskMessage = "";
 
-    private IntentFilter intentFilter;
     private SwipeController swipeController;
 
     @Override
@@ -79,7 +76,8 @@ public class MainActivity extends AppCompatActivity {
         showAppNameCollapsing(appName);
 
         dataBaseManager = new DataBaseManager(this);
-        notificationIntent();
+        // serwis
+        startService(new Intent(this, TaskService.class));
 
         findViewById();
         initDataFromDB();
@@ -112,12 +110,6 @@ public class MainActivity extends AppCompatActivity {
                 swipeController.onDraw(c);
             }
         });
-    }
-
-    // intent filter
-    private void notificationIntent() {
-        intentFilter = new IntentFilter(Intent.ACTION_TIME_TICK);
-        registerReceiver(new NotificationBroadcast(), intentFilter);
     }
 
     // widoczność nazwy aplikacji gdy zwinięty, podmiana ikony +

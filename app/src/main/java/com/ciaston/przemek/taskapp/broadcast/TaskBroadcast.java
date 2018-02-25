@@ -3,6 +3,7 @@ package com.ciaston.przemek.taskapp.broadcast;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.widget.Toast;
 
 import com.ciaston.przemek.taskapp.MainActivity;
 import com.ciaston.przemek.taskapp.R;
@@ -18,7 +19,7 @@ import java.util.List;
  * Created by Przemek on 2018-02-17.
  */
 
-public class NotificationBroadcast extends BroadcastReceiver {
+public class TaskBroadcast extends BroadcastReceiver {
 
     private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -28,8 +29,7 @@ public class NotificationBroadcast extends BroadcastReceiver {
         Calendar calendar = Calendar.getInstance();
         DataBaseManager dataBaseManager = new DataBaseManager(context);
 
-        String title = MainActivity.resources.getString(R.string.its_high_time_to);
-
+        String title = context.getString(R.string.its_high_time_to);
         String getTimeFromCalendar = timeFormat.format(calendar.getTime());
         String getDateFromCalendar = dateFormat.format(calendar.getTime());
 
