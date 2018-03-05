@@ -1,7 +1,10 @@
 package com.ciaston.przemek.taskapp;
 
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -39,7 +42,7 @@ import com.ciaston.przemek.taskapp.controller.SwipeController;
 import com.ciaston.przemek.taskapp.controller.SwipeControllerActions;
 import com.ciaston.przemek.taskapp.db.DataBaseManager;
 import com.ciaston.przemek.taskapp.model.TaskModel;
-import com.ciaston.przemek.taskapp.service.TaskService;
+import com.ciaston.przemek.taskapp.receiver.TaskReceiver;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -65,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
 
     private SwipeController swipeController;
 
+    AlarmManager alarmManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,8 +81,11 @@ public class MainActivity extends AppCompatActivity {
         showAppNameCollapsing(appName);
 
         dataBaseManager = new DataBaseManager(this);
-        // serwis
-        startService(new Intent(this, TaskService.class));
+
+        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this, TaskReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 10, pendingIntent);
 
         findViewById();
         initDataFromDB();
@@ -479,4 +487,19 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+
+//    @Override
+//    protected void onStop() {
+//        super.onStop();
+//        Log.e("TAG", "MainActivity onStop");
+//        startService(new Intent(this, TaskService.class));
+//    }
+//
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        Log.e("TAG", "MainActivity onPause");
+//        startService(new Intent(this, TaskService.class));
+//    }
 }

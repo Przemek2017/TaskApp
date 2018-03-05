@@ -1,11 +1,14 @@
-package com.ciaston.przemek.taskapp.broadcast;
+package com.ciaston.przemek.taskapp.receiver;
+
+/**
+ * Created by Przemek on 2018-03-03.
+ */
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.widget.Toast;
+import android.util.Log;
 
-import com.ciaston.przemek.taskapp.MainActivity;
 import com.ciaston.przemek.taskapp.R;
 import com.ciaston.przemek.taskapp.db.DataBaseManager;
 import com.ciaston.przemek.taskapp.model.TaskModel;
@@ -19,13 +22,14 @@ import java.util.List;
  * Created by Przemek on 2018-02-17.
  */
 
-public class TaskBroadcast extends BroadcastReceiver {
+public class TaskReceiver extends BroadcastReceiver {
 
     private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        Log.e("TAG", "TaskReceiver");
         Calendar calendar = Calendar.getInstance();
         DataBaseManager dataBaseManager = new DataBaseManager(context);
 

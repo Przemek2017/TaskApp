@@ -4,7 +4,7 @@
     <dimen name="text_margin">16dp</dimen>
     <!-- Default screen margins, per the Android Design guidelines. -->
 
-    <dimen name="item_height">80px</dimen>
+    <dimen name="item_height">75px</dimen>
     <dimen name="item_card_view_height">100px</dimen>
     <dimen name="margin_between_clock_calendar">50px</dimen>
     <dimen name="padding">7dp</dimen>

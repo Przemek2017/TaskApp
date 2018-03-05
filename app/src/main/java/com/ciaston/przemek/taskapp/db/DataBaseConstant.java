@@ -13,7 +13,7 @@ public class DataBaseConstant {
     public static final String TIME = "time";
     public static final String DATE = "date";
 
-    public static final int VERSION = 1;
+    public static final int VERSION = 3;
 
     public static final String createTable = "CREATE TABLE " + TABLE + " ("
             + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "

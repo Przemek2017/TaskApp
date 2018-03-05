@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import com.ciaston.przemek.taskapp.model.TaskModel;
 
@@ -89,5 +90,13 @@ public class DataBaseManager extends SQLiteOpenHelper {
             return true;
         }
         return false;
+    }
+
+    public boolean deleteTable(){
+        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
+        String del = "DELETE FROM " + DataBaseConstant.TABLE;
+        sqLiteDatabase.execSQL(del);
+        Log.e("TAG", "Delete table " + del);
+        return true;
     }
 }
