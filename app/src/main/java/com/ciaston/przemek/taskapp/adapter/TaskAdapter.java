@@ -1,6 +1,7 @@
 package com.ciaston.przemek.taskapp.adapter;
 
 import android.content.Context;
+import android.graphics.Paint;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,12 +35,13 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyHolder> {
     }
 
     @Override
-    public void onBindViewHolder(MyHolder holder, int position) {
+    public void onBindViewHolder(MyHolder holder, final int position) {
         final TaskModel item = taskList.get(position);
 
         holder.task.setText(item.getTask());
         holder.time.setText(item.getTime().toString());
         holder.date.setText(item.getDate().toString());
+
 
         if (item.getDate().isEmpty()) {
 
@@ -49,6 +51,24 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyHolder> {
             holder.time.setTextSize(20);
         }
 
+        holder.task.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                TaskModel taskModel = getData(position);
+                if (taskModel.isComplete()){
+
+                }
+                return false;
+            }
+        });
+
+        if (item.isComplete()){
+            holder.task.setPaintFlags(holder.task.getPaintFlags() |
+                    Paint.STRIKE_THRU_TEXT_FLAG);
+        } else {
+            holder.task.setPaintFlags(holder.task.getPaintFlags() &
+                    Paint.STRIKE_THRU_TEXT_FLAG);
+        }
     }
 
     public TaskModel getData(int position) {

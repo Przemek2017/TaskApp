@@ -71,15 +71,19 @@ public class DataBaseManager extends SQLiteOpenHelper {
         sqLiteDatabase.insert(DataBaseConstant.TABLE, null, contentValues);
     }
 
-    public void updateTask(TaskModel taskModel) {
+    public boolean updateTask(TaskModel taskModel) {
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
+        int taskComplete = taskModel.isComplete() ? 1 : 0;
         contentValues.put(DataBaseConstant.TASK, taskModel.getTask());
         contentValues.put(DataBaseConstant.TIME, taskModel.getTime());
         contentValues.put(DataBaseConstant.DATE, taskModel.getDate());
+        contentValues.put(DataBaseConstant.IS_COMPLETE, taskComplete);
 
         String where = DataBaseConstant.ID + "=?";
-        sqLiteDatabase.update(DataBaseConstant.TABLE, contentValues, where, new String[]{taskModel.getId()});
+//        sqLiteDatabase.update(DataBaseConstant.TABLE, contentValues, where, new String[]{taskModel.getId()});
+
+        return sqLiteDatabase.update(DataBaseConstant.TABLE, contentValues, where, null) > 0;
     }
 
     public boolean deleteTask(String id) {

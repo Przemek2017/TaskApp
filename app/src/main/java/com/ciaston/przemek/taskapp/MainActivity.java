@@ -25,10 +25,12 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -108,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
                 TaskModel taskModel = taskAdapter.getData(position);
                 editTask(taskModel);
             }
+
         });
         ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
         itemTouchhelper.attachToRecyclerView(recyclerView);
@@ -219,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
 
                 taskToast(timeAdd, dateAdd);
 
-                TaskModel taskModel = new TaskModel(taskAdd, timeAdd, dateAdd);
+                TaskModel taskModel = new TaskModel(taskAdd, timeAdd, dateAdd, true);
                 dataBaseManager.insertTask(taskModel);
                 initDataFromDB();
             }
@@ -436,6 +439,14 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL));
         recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        recyclerView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                int pos = view.getId();
+                return false;
+            }
+        });
     }
 
     // toast informujący o rodzaju ustawionego przypomnienia

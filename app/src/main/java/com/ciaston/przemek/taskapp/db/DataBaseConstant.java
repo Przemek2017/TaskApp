@@ -12,6 +12,7 @@ public class DataBaseConstant {
     public static final String TASK = "task";
     public static final String TIME = "time";
     public static final String DATE = "date";
+    public static final String IS_COMPLETE = "is_complete";
 
     public static final int VERSION = 3;
 
@@ -19,7 +20,8 @@ public class DataBaseConstant {
             + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + TASK + " TEXT, "
             + TIME + " TEXT, "
-            + DATE + " TEXT);";
+            + DATE + " TEXT, "
+            + IS_COMPLETE + " INTEGER DEFAULT 0);";
 
     public static final String dropTable = "DROP TABLE IF EXISTS " + TABLE + ";";
 }
