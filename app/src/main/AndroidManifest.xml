@@ -21,6 +21,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+<<<<<<< HEAD
 
         <receiver android:name=".receiver.RebootReceiver">
             <intent-filter>
@@ -34,6 +35,8 @@
             </intent-filter>
         </receiver>
 
+=======
+>>>>>>> parent of a02dd09... - refactoring v8
     </application>
 
 </manifest>

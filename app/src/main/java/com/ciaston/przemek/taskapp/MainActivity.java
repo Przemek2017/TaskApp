@@ -7,11 +7,13 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -40,11 +42,15 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.ciaston.przemek.taskapp.adapter.TaskAdapter;
+import com.ciaston.przemek.taskapp.broadcast.NotificationBroadcast;
 import com.ciaston.przemek.taskapp.controller.SwipeController;
 import com.ciaston.przemek.taskapp.controller.SwipeControllerActions;
 import com.ciaston.przemek.taskapp.db.DataBaseManager;
 import com.ciaston.przemek.taskapp.model.TaskModel;
+<<<<<<< HEAD
 import com.ciaston.przemek.taskapp.receiver.TaskReceiver;
+=======
+>>>>>>> parent of a02dd09... - refactoring v8
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -68,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private String setTime = "", setDate = "", taskMessage = "";
 
+    private IntentFilter intentFilter;
     private SwipeController swipeController;
 
     AlarmManager alarmManager;
@@ -83,11 +90,15 @@ public class MainActivity extends AppCompatActivity {
         showAppNameCollapsing(appName);
 
         dataBaseManager = new DataBaseManager(this);
+<<<<<<< HEAD
 
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, TaskReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 10, pendingIntent);
+=======
+        notificationIntent();
+>>>>>>> parent of a02dd09... - refactoring v8
 
         findViewById();
         initDataFromDB();
@@ -121,6 +132,12 @@ public class MainActivity extends AppCompatActivity {
                 swipeController.onDraw(c);
             }
         });
+    }
+
+    // intent filter
+    private void notificationIntent() {
+        intentFilter = new IntentFilter(Intent.ACTION_TIME_TICK);
+        registerReceiver(new NotificationBroadcast(), intentFilter);
     }
 
     // widoczność nazwy aplikacji gdy zwinięty, podmiana ikony +

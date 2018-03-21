@@ -50,6 +50,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyHolder> {
             holder.time.setLayoutParams(params);
             holder.time.setTextSize(20);
         }
+<<<<<<< HEAD
 
         holder.task.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -69,6 +70,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyHolder> {
             holder.task.setPaintFlags(holder.task.getPaintFlags() &
                     Paint.STRIKE_THRU_TEXT_FLAG);
         }
+=======
+>>>>>>> parent of a02dd09... - refactoring v8
     }
 
     public TaskModel getData(int position) {
