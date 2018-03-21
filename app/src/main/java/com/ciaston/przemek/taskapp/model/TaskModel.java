@@ -10,13 +10,11 @@ public class TaskModel {
     private String task;
     private String time;
     private String date;
-    private boolean isComplete;
 
-    public TaskModel(String task, String time, String date, boolean isComplete) {
+    public TaskModel(String task, String time, String date) {
         this.task = task;
         this.time = time;
         this.date = date;
-        this.isComplete = isComplete;
     }
 
     public TaskModel() {
@@ -54,11 +52,4 @@ public class TaskModel {
         this.date = date;
     }
 
-    public boolean isComplete() {
-        return isComplete;
-    }
-
-    public void setComplete(boolean complete) {
-        isComplete = complete;
-    }
 }

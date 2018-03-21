@@ -50,28 +50,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyHolder> {
             holder.time.setLayoutParams(params);
             holder.time.setTextSize(20);
         }
-<<<<<<< HEAD
 
-        holder.task.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                TaskModel taskModel = getData(position);
-                if (taskModel.isComplete()){
-
-                }
-                return false;
-            }
-        });
-
-        if (item.isComplete()){
-            holder.task.setPaintFlags(holder.task.getPaintFlags() |
-                    Paint.STRIKE_THRU_TEXT_FLAG);
-        } else {
-            holder.task.setPaintFlags(holder.task.getPaintFlags() &
-                    Paint.STRIKE_THRU_TEXT_FLAG);
-        }
-=======
->>>>>>> parent of a02dd09... - refactoring v8
     }
 
     public TaskModel getData(int position) {

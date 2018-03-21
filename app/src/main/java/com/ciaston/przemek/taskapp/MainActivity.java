@@ -47,10 +47,9 @@ import com.ciaston.przemek.taskapp.controller.SwipeController;
 import com.ciaston.przemek.taskapp.controller.SwipeControllerActions;
 import com.ciaston.przemek.taskapp.db.DataBaseManager;
 import com.ciaston.przemek.taskapp.model.TaskModel;
-<<<<<<< HEAD
 import com.ciaston.przemek.taskapp.receiver.TaskReceiver;
-=======
->>>>>>> parent of a02dd09... - refactoring v8
+import com.ciaston.przemek.taskapp.service.TaskService;
+
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -90,15 +89,14 @@ public class MainActivity extends AppCompatActivity {
         showAppNameCollapsing(appName);
 
         dataBaseManager = new DataBaseManager(this);
-<<<<<<< HEAD
-
-        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(this, TaskReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 10, pendingIntent);
-=======
+        // serwis
+        startService(new Intent(this, TaskService.class));
         notificationIntent();
->>>>>>> parent of a02dd09... - refactoring v8
+
+//        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+//        Intent intent = new Intent(this, TaskReceiver.class);
+//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 10, pendingIntent);
 
         findViewById();
         initDataFromDB();
@@ -239,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
 
                 taskToast(timeAdd, dateAdd);
 
-                TaskModel taskModel = new TaskModel(taskAdd, timeAdd, dateAdd, true);
+                TaskModel taskModel = new TaskModel(taskAdd, timeAdd, dateAdd);
                 dataBaseManager.insertTask(taskModel);
                 initDataFromDB();
             }
